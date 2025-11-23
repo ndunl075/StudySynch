@@ -19,7 +19,16 @@ class CalendarConverter {
             );
         }
         this.genAI = new GoogleGenerativeAI(apiKey);
-        this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+        // Try gemini-1.5-flash first (faster and free), fallback to gemini-pro
+        try {
+            this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        } catch (error) {
+            try {
+                this.model = this.genAI.getGenerativeModel({ model: 'gemini-pro' });
+            } catch (e) {
+                this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+            }
+        }
     }
 
     /**
