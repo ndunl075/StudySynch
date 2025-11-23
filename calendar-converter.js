@@ -21,12 +21,12 @@ class CalendarConverter {
         this.genAI = new GoogleGenerativeAI(apiKey);
         // Use gemini-2.5-flash (confirmed available with your API key)
         // This model supports both text and images
-        // Explicitly set model to prevent any defaults
-        this.model = this.genAI.getGenerativeModel('gemini-2.5-flash', {
-            generationConfig: {
-                temperature: 0.7,
-            }
+        // CRITICAL: Must use exact model name 'gemini-2.5-flash' - no defaults
+        console.log('Initializing Gemini model: gemini-2.5-flash');
+        this.model = this.genAI.getGenerativeModel({ 
+            model: 'gemini-2.5-flash'
         });
+        console.log('Model initialized successfully');
     }
 
     /**
