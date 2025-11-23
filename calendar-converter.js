@@ -106,9 +106,16 @@ Return ONLY valid JSON, no additional text or explanations.`;
             let response;
             
             if (isImage) {
-                // For images, use the vision-capable model
+                // For images, use a vision-capable model
+                // gemini-1.5-flash supports images
+                let visionModel;
+                try {
+                    visionModel = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+                } catch (e) {
+                    visionModel = this.genAI.getGenerativeModel({ model: 'gemini-pro-vision' });
+                }
                 const parts = [prompt, content];
-                response = await this.model.generateContent(parts);
+                response = await visionModel.generateContent(parts);
             } else {
                 // For text content
                 const fullPrompt = `${prompt}\n\nContent:\n${content}`;
