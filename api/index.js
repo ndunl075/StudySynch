@@ -6,7 +6,8 @@ const path = require('path');
 const fs = require('fs');
 const CalendarConverter = require('../calendar-converter');
 
-// Load environment variables
+// Load environment variables (for local development)
+// Note: Vercel automatically injects environment variables, dotenv is only for local dev
 require('dotenv').config();
 
 const app = express();
@@ -38,18 +39,32 @@ app.use((err, req, res, next) => {
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 const API_KEY = process.env.GEMINI_API_KEY;
+
+// Debug logging (will show in Vercel logs)
+console.log('Environment check:');
+console.log('- NODE_ENV:', process.env.NODE_ENV);
+console.log('- GEMINI_API_KEY exists:', !!API_KEY);
+console.log('- GEMINI_API_KEY length:', API_KEY ? API_KEY.length : 0);
+console.log('- All env vars:', Object.keys(process.env).filter(k => k.includes('GEMINI') || k.includes('VERCEL')));
+
 if (!API_KEY) {
     console.error('ERROR: GEMINI_API_KEY environment variable is required');
+    console.error('Available environment variables:', Object.keys(process.env).slice(0, 20));
     // Don't create converter if API key is missing - will fail on first request
 }
 
 let converter;
 try {
     if (API_KEY) {
+        console.log('Initializing CalendarConverter with API key...');
         converter = new CalendarConverter(API_KEY);
+        console.log('CalendarConverter initialized successfully');
+    } else {
+        console.warn('CalendarConverter not initialized - API key missing');
     }
 } catch (error) {
     console.error('Error initializing CalendarConverter:', error);
+    console.error('Error stack:', error.stack);
 }
 
 /**
@@ -193,7 +208,12 @@ app.post('/api/convert/file', upload.single('file'), async (req, res) => {
 });
 
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', message: 'Calendar Converter API is running' });
+    res.json({ 
+        status: 'ok', 
+        message: 'Calendar Converter API is running',
+        hasApiKey: !!process.env.GEMINI_API_KEY,
+        converterInitialized: !!converter
+    });
 });
 
 // Serve frontend
