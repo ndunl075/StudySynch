@@ -21,8 +21,8 @@ class CalendarConverter {
         this.genAI = new GoogleGenerativeAI(apiKey);
         // Use gemini-2.5-flash (confirmed available with your API key)
         // This model supports both text and images
-        this.model = this.genAI.getGenerativeModel({ 
-            model: 'gemini-2.5-flash',
+        // Explicitly set model to prevent any defaults
+        this.model = this.genAI.getGenerativeModel('gemini-2.5-flash', {
             generationConfig: {
                 temperature: 0.7,
             }
