@@ -20,8 +20,13 @@ class CalendarConverter {
         }
         this.genAI = new GoogleGenerativeAI(apiKey);
         // Use gemini-pro (most stable and widely available)
-        // For images, we'll use gemini-1.5-flash which supports vision
-        this.model = this.genAI.getGenerativeModel({ model: 'gemini-pro' });
+        // Explicitly set model to avoid any defaults
+        this.model = this.genAI.getGenerativeModel({ 
+            model: 'gemini-pro',
+            generationConfig: {
+                temperature: 0.7,
+            }
+        });
     }
 
     /**
