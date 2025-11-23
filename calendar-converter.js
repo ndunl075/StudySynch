@@ -19,35 +19,14 @@ class CalendarConverter {
             );
         }
         this.genAI = new GoogleGenerativeAI(apiKey);
-        // Try newer API v2.5/v3 models first, then fallback to older models
-        try {
-            // Try gemini-2.5-flash (newest, fastest)
-            this.model = this.genAI.getGenerativeModel({ 
-                model: 'gemini-2.5-flash',
-                generationConfig: {
-                    temperature: 0.7,
-                }
-            });
-        } catch (error) {
-            try {
-                // Try gemini-1.5-flash (API v1.5)
-                this.model = this.genAI.getGenerativeModel({ 
-                    model: 'gemini-1.5-flash',
-                    generationConfig: {
-                        temperature: 0.7,
-                    }
-                });
-            } catch (error2) {
-                // Fallback to gemini-pro (most stable)
-                console.warn('Newer models not available, using gemini-pro');
-                this.model = this.genAI.getGenerativeModel({ 
-                    model: 'gemini-pro',
-                    generationConfig: {
-                        temperature: 0.7,
-                    }
-                });
+        // Use gemini-2.5-flash (available with your API key)
+        // This model supports both text and images
+        this.model = this.genAI.getGenerativeModel({ 
+            model: 'gemini-2.5-flash',
+            generationConfig: {
+                temperature: 0.7,
             }
-        }
+        });
     }
 
     /**
@@ -125,45 +104,12 @@ Return ONLY valid JSON, no additional text or explanations.`;
             let response;
             
             if (isImage) {
-                // For images, try newer models first (support both text and images)
-                let visionModel;
-                try {
-                    // Try gemini-2.5-flash (newest, supports images)
-                    visionModel = this.genAI.getGenerativeModel({ 
-                        model: 'gemini-2.5-flash',
-                        generationConfig: {
-                            temperature: 0.7,
-                        }
-                    });
-                } catch (e) {
-                    try {
-                        // Try gemini-1.5-flash (API v1.5)
-                        visionModel = this.genAI.getGenerativeModel({ 
-                            model: 'gemini-1.5-flash',
-                            generationConfig: {
-                                temperature: 0.7,
-                            }
-                        });
-                    } catch (e2) {
-                        try {
-                            // Fallback to gemini-pro-vision
-                            visionModel = this.genAI.getGenerativeModel({ 
-                                model: 'gemini-pro-vision',
-                                generationConfig: {
-                                    temperature: 0.7,
-                                }
-                            });
-                        } catch (e3) {
-                            // Last resort: use the default model
-                            console.warn('Vision models not available, using default model');
-                            visionModel = this.model;
-                        }
-                    }
-                }
+                // For images, use gemini-2.5-flash (supports both text and images)
+                // This model is available with your API key
                 const parts = [prompt, content];
-                response = await visionModel.generateContent(parts);
+                response = await this.model.generateContent(parts);
             } else {
-                // For text content, use the model initialized in constructor
+                // For text content, use gemini-2.5-flash
                 const fullPrompt = `${prompt}\n\nContent:\n${content}`;
                 response = await this.model.generateContent(fullPrompt);
             }
