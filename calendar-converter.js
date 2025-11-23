@@ -101,17 +101,20 @@ IMPORTANT:
 Return ONLY valid JSON, no additional text or explanations.`;
 
         try {
+            // Ensure we're using gemini-2.5-flash - create fresh model instance to be sure
+            const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+            console.log('Using model: gemini-2.5-flash for API call');
+            
             let response;
             
             if (isImage) {
                 // For images, use gemini-2.5-flash (supports both text and images)
-                // This model is available with your API key
                 const parts = [prompt, content];
-                response = await this.model.generateContent(parts);
+                response = await model.generateContent(parts);
             } else {
                 // For text content, use gemini-2.5-flash
                 const fullPrompt = `${prompt}\n\nContent:\n${content}`;
-                response = await this.model.generateContent(fullPrompt);
+                response = await model.generateContent(fullPrompt);
             }
 
             let responseText = response.response.text().trim();
