@@ -23,15 +23,34 @@ const upload = multer({
 app.use(cors());
 app.use(express.json());
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error('Unhandled error:', err);
+    if (!res.headersSent) {
+        res.status(500).json({ 
+            error: 'Internal server error',
+            message: process.env.NODE_ENV === 'development' ? err.message : 'An error occurred'
+        });
+    }
+});
+
 // Serve static files from frontend
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 const API_KEY = process.env.GEMINI_API_KEY;
 if (!API_KEY) {
     console.error('ERROR: GEMINI_API_KEY environment variable is required');
+    // Don't create converter if API key is missing - will fail on first request
 }
 
-const converter = new CalendarConverter(API_KEY);
+let converter;
+try {
+    if (API_KEY) {
+        converter = new CalendarConverter(API_KEY);
+    }
+} catch (error) {
+    console.error('Error initializing CalendarConverter:', error);
+}
 
 /**
  * Helper function to convert buffer to image format for Gemini
@@ -68,6 +87,10 @@ function isImageFile(filename) {
 
 app.post('/api/convert/text', async (req, res) => {
     try {
+        if (!converter) {
+            return res.status(500).json({ error: 'Calendar converter not initialized. GEMINI_API_KEY is required.' });
+        }
+
         const { text } = req.body;
         
         if (!text || typeof text !== 'string') {
@@ -112,6 +135,10 @@ app.post('/api/convert/text', async (req, res) => {
 
 app.post('/api/convert/file', upload.single('file'), async (req, res) => {
     try {
+        if (!converter) {
+            return res.status(500).json({ error: 'Calendar converter not initialized. GEMINI_API_KEY is required.' });
+        }
+
         if (!req.file) {
             return res.status(400).json({ error: 'File is required' });
         }
@@ -175,5 +202,6 @@ app.get('*', (req, res) => {
 });
 
 // Export for Vercel
+// Note: Vercel expects the Express app to be exported directly
 module.exports = app;
 
