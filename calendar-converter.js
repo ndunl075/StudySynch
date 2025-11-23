@@ -19,14 +19,25 @@ class CalendarConverter {
             );
         }
         this.genAI = new GoogleGenerativeAI(apiKey);
-        // Use gemini-2.5-flash (available with your API key)
-        // This model supports both text and images
-        this.model = this.genAI.getGenerativeModel({ 
-            model: 'gemini-2.5-flash',
-            generationConfig: {
-                temperature: 0.7,
-            }
-        });
+        // Use gemini-flash-latest (always points to latest stable flash model)
+        // This model supports both text and images and is available with your API key
+        try {
+            this.model = this.genAI.getGenerativeModel({ 
+                model: 'gemini-flash-latest',
+                generationConfig: {
+                    temperature: 0.7,
+                }
+            });
+        } catch (error) {
+            // Fallback to gemini-2.0-flash if latest not available
+            console.warn('gemini-flash-latest not available, using gemini-2.0-flash');
+            this.model = this.genAI.getGenerativeModel({ 
+                model: 'gemini-2.0-flash',
+                generationConfig: {
+                    temperature: 0.7,
+                }
+            });
+        }
     }
 
     /**
