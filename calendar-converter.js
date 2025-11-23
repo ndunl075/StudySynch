@@ -19,24 +19,34 @@ class CalendarConverter {
             );
         }
         this.genAI = new GoogleGenerativeAI(apiKey);
-        // Use gemini-1.5-flash (available in newer API versions)
-        // This model works with both text and images
+        // Try newer API v2.5/v3 models first, then fallback to older models
         try {
+            // Try gemini-2.5-flash (newest, fastest)
             this.model = this.genAI.getGenerativeModel({ 
-                model: 'gemini-1.5-flash',
+                model: 'gemini-2.5-flash',
                 generationConfig: {
                     temperature: 0.7,
                 }
             });
         } catch (error) {
-            // Fallback to gemini-pro if flash is not available
-            console.warn('gemini-1.5-flash not available, using gemini-pro');
-            this.model = this.genAI.getGenerativeModel({ 
-                model: 'gemini-pro',
-                generationConfig: {
-                    temperature: 0.7,
-                }
-            });
+            try {
+                // Try gemini-1.5-flash (API v1.5)
+                this.model = this.genAI.getGenerativeModel({ 
+                    model: 'gemini-1.5-flash',
+                    generationConfig: {
+                        temperature: 0.7,
+                    }
+                });
+            } catch (error2) {
+                // Fallback to gemini-pro (most stable)
+                console.warn('Newer models not available, using gemini-pro');
+                this.model = this.genAI.getGenerativeModel({ 
+                    model: 'gemini-pro',
+                    generationConfig: {
+                        temperature: 0.7,
+                    }
+                });
+            }
         }
     }
 
@@ -115,35 +125,45 @@ Return ONLY valid JSON, no additional text or explanations.`;
             let response;
             
             if (isImage) {
-                // For images, use gemini-1.5-flash (supports both text and images)
-                // This model works with the newer API versions
+                // For images, try newer models first (support both text and images)
                 let visionModel;
                 try {
+                    // Try gemini-2.5-flash (newest, supports images)
                     visionModel = this.genAI.getGenerativeModel({ 
-                        model: 'gemini-1.5-flash',
+                        model: 'gemini-2.5-flash',
                         generationConfig: {
                             temperature: 0.7,
                         }
                     });
                 } catch (e) {
                     try {
-                        // Fallback to gemini-pro-vision
+                        // Try gemini-1.5-flash (API v1.5)
                         visionModel = this.genAI.getGenerativeModel({ 
-                            model: 'gemini-pro-vision',
+                            model: 'gemini-1.5-flash',
                             generationConfig: {
                                 temperature: 0.7,
                             }
                         });
                     } catch (e2) {
-                        // Last resort: use the default model
-                        console.warn('Vision models not available, using default model');
-                        visionModel = this.model;
+                        try {
+                            // Fallback to gemini-pro-vision
+                            visionModel = this.genAI.getGenerativeModel({ 
+                                model: 'gemini-pro-vision',
+                                generationConfig: {
+                                    temperature: 0.7,
+                                }
+                            });
+                        } catch (e3) {
+                            // Last resort: use the default model
+                            console.warn('Vision models not available, using default model');
+                            visionModel = this.model;
+                        }
                     }
                 }
                 const parts = [prompt, content];
                 response = await visionModel.generateContent(parts);
             } else {
-                // For text content, use gemini-1.5-flash or gemini-pro
+                // For text content, use the model initialized in constructor
                 const fullPrompt = `${prompt}\n\nContent:\n${content}`;
                 response = await this.model.generateContent(fullPrompt);
             }
