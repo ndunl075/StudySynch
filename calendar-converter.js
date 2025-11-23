@@ -19,16 +19,9 @@ class CalendarConverter {
             );
         }
         this.genAI = new GoogleGenerativeAI(apiKey);
-        // Try gemini-1.5-flash first (faster and free), fallback to gemini-pro
-        try {
-            this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-        } catch (error) {
-            try {
-                this.model = this.genAI.getGenerativeModel({ model: 'gemini-pro' });
-            } catch (e) {
-                this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-            }
-        }
+        // Use gemini-pro (most stable and widely available)
+        // For images, we'll use gemini-1.5-flash which supports vision
+        this.model = this.genAI.getGenerativeModel({ model: 'gemini-pro' });
     }
 
     /**
@@ -106,18 +99,23 @@ Return ONLY valid JSON, no additional text or explanations.`;
             let response;
             
             if (isImage) {
-                // For images, use a vision-capable model
-                // gemini-1.5-flash supports images
+                // For images, use gemini-pro-vision (supports image inputs)
+                // If that's not available, try gemini-1.5-flash
                 let visionModel;
                 try {
-                    visionModel = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-                } catch (e) {
                     visionModel = this.genAI.getGenerativeModel({ model: 'gemini-pro-vision' });
+                } catch (e) {
+                    try {
+                        visionModel = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+                    } catch (e2) {
+                        // Fallback to regular model (won't work for images but won't crash)
+                        visionModel = this.model;
+                    }
                 }
                 const parts = [prompt, content];
                 response = await visionModel.generateContent(parts);
             } else {
-                // For text content
+                // For text content, use the standard gemini-pro model
                 const fullPrompt = `${prompt}\n\nContent:\n${content}`;
                 response = await this.model.generateContent(fullPrompt);
             }
