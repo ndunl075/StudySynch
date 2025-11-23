@@ -1,0 +1,30 @@
+{
+  "name": "calendar-converter",
+  "version": "1.0.0",
+  "description": "Convert text, files, or images to ICS calendar files using Google's Gemini API",
+  "main": "calendar-converter.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "pm2:start": "pm2 start ecosystem.config.js --env production",
+    "pm2:stop": "pm2 stop calendar-converter",
+    "pm2:restart": "pm2 restart calendar-converter"
+  },
+  "keywords": [
+    "calendar",
+    "ics",
+    "gemini",
+    "google",
+    "converter"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^4.21.2",
+    "ics": "^3.8.1",
+    "multer": "^1.4.5-lts.1"
+  }
+}

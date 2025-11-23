@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar Converter - Convert to ICS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Calendar Converter</h1>
+            <p class="subtitle">Convert schedules, text, files, or images to ICS calendar files using AI</p>
+        </header>
+
+        <main>
+            <div class="tabs">
+                <button class="tab-button active" data-tab="text">Text</button>
+                <button class="tab-button" data-tab="file">File</button>
+                <button class="tab-button" data-tab="image">Image</button>
+            </div>
+
+            <!-- Text Input Tab -->
+            <div class="tab-content active" id="text-tab">
+                <div class="input-section">
+                    <label for="text-input">Paste your schedule:</label>
+                    <textarea 
+                        id="text-input" 
+                        placeholder="e.g., Monday: Math 101, 9:00 AM - 10:30 AM, Room 205&#10;Tuesday: History 201, 2:00 PM - 3:30 PM, Room 312"
+                        rows="6"
+                    ></textarea>
+                    <button class="convert-btn" onclick="convertText()">Convert to ICS</button>
+                </div>
+            </div>
+
+            <!-- File Input Tab -->
+            <div class="tab-content" id="file-tab">
+                <div class="input-section">
+                    <label for="file-input">Upload a schedule file:</label>
+                    <div class="file-upload-area" id="file-upload-area">
+                        <input type="file" id="file-input" accept=".txt,.md,.csv,.jpg,.jpeg,.png,.gif,.bmp,.webp" onchange="handleFileSelect(event)">
+                        <div class="file-upload-placeholder">
+                            <span class="upload-icon">📎</span>
+                            <p>Click to select a file or drag and drop</p>
+                            <p class="file-hint">Supports: .txt, .md, .csv, .jpg, .png, .gif, etc.</p>
+                        </div>
+                        <div class="file-selected" id="file-selected" style="display: none;">
+                            <span id="file-name"></span>
+                            <button class="remove-file" onclick="clearFile()">✕</button>
+                        </div>
+                    </div>
+                    <button class="convert-btn" id="file-convert-btn" onclick="convertFile()" disabled>Convert to ICS</button>
+                </div>
+            </div>
+
+            <!-- Image Input Tab -->
+            <div class="tab-content" id="image-tab">
+                <div class="input-section">
+                    <label for="image-input">Upload a schedule image:</label>
+                    <div class="image-upload-area" id="image-upload-area">
+                        <input type="file" id="image-input" accept="image/*" onchange="handleImageSelect(event)">
+                        <div class="image-upload-placeholder">
+                            <span class="upload-icon">🖼️</span>
+                            <p>Click to select an image or drag and drop</p>
+                            <p class="file-hint">Supports: .jpg, .png, .gif, .bmp, .webp</p>
+                        </div>
+                        <div class="image-preview" id="image-preview" style="display: none;">
+                            <img id="preview-img" src="" alt="Preview">
+                            <button class="remove-image" onclick="clearImage()">✕</button>
+                        </div>
+                    </div>
+                    <button class="convert-btn" id="image-convert-btn" onclick="convertImage()" disabled>Convert to ICS</button>
+                </div>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div class="loading" id="loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Processing schedule with AI...</p>
+            </div>
+
+            <!-- Error Message -->
+            <div class="error-message" id="error-message" style="display: none;"></div>
+
+            <!-- Success Message -->
+            <div class="success-message" id="success-message" style="display: none;">
+                <p>✓ Calendar file generated successfully!</p>
+                <p class="download-hint">The file should download automatically. If not, check your browser's download settings.</p>
+            </div>
+        </main>
+
+        <footer>
+            <p>Created by Nico Dunlap</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
