@@ -8,7 +8,7 @@
 const fs = require('fs');
 const path = require('path');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-const { Calendar, Event } = require('ics');
+const { createEvents } = require('ics');
 
 class CalendarConverter {
     constructor(apiKey) {
@@ -209,7 +209,7 @@ Return ONLY valid JSON, no additional text or explanations.`;
             events.push(event);
         }
 
-        const { error, value } = Calendar(events);
+        const { error, value } = createEvents(events);
 
         if (error) {
             throw new Error(`Error creating calendar: ${error}`);

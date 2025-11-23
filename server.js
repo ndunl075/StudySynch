@@ -114,8 +114,8 @@ app.post('/api/convert/text', async (req, res) => {
             });
         }
 
-        const { Calendar } = require('ics');
-        const { error, value } = Calendar(events);
+        const { createEvents } = require('ics');
+        const { error, value } = createEvents(events);
 
         if (error) {
             throw new Error(`Error creating calendar: ${error}`);
@@ -179,8 +179,8 @@ app.post('/api/convert/file', upload.single('file'), async (req, res) => {
             });
         }
 
-        const { Calendar } = require('ics');
-        const { error, value } = Calendar(events);
+        const { createEvents } = require('ics');
+        const { error, value } = createEvents(events);
 
         if (error) {
             throw new Error(`Error creating calendar: ${error}`);
